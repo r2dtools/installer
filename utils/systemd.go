@@ -62,3 +62,25 @@ func (sd *SystemD) StartService(serviceName string) error {
 
 	return nil
 }
+
+func (sd *SystemD) StopService(serviceName string) error {
+	sd.Logger.Println("stopping R2DTools agent service ...")
+	if err := sd.Sh.Exec(fmt.Sprintf("systemctl stop \"%s\"", serviceName)); err != nil {
+		return fmt.Errorf("could not stop '%s' service: %v", serviceName, err)
+	}
+	sd.Logger.Println("R2DTools agent service successfully stopped")
+
+	return nil
+}
+
+func (sd *SystemD) RemoveService(serviceName string) error {
+	sd.Logger.Println("disabling R2DTools agent systemd service ...")
+	if err := sd.Sh.Exec(fmt.Sprintf("systemctl disable \"%s\"", serviceName)); err != nil {
+		return fmt.Errorf("could not disable '%s' service: %v", serviceName, err)
+	}
+	sd.Logger.Println("R2DTools agent service is successfully disabled")
+	os.Remove(SYSTEMD_SERVICE_FILE)
+	sd.Sh.Exec("systemctl daemo-reload")
+
+	return nil
+}
