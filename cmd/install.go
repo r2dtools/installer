@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"os/user"
 
 	"github.com/shirou/gopsutil/host"
@@ -27,7 +26,6 @@ var installCmd = &cobra.Command{
 		if !com.IsSliceContainsStr(supportedPlatforms, info.Platform) {
 			return fmt.Errorf("platform %s is not supported", info.Platform)
 		}
-		logger.Println(fmt.Sprintf("platform '%s' is supported", info.Platform))
 
 		if err = installPackages(info); err != nil {
 			return err
@@ -94,21 +92,6 @@ func addUserGroup(userName, groupName string) error {
 		}
 	} else {
 		logger.Println(fmt.Sprintf("the user '%s' already exists", userName))
-	}
-
-	return nil
-}
-
-func updatePermissions(userName, groupName string) error {
-	agentDir := getAgentDir()
-	logger.Println(fmt.Sprintf("setting owner '%s:%s' for the agent directory '%s' ...", userName, groupName, agentDir))
-	if err := sh.Exec(fmt.Sprintf("chown -R %s:%s %s", userName, groupName, agentDir)); err != nil {
-		return fmt.Errorf("could not set agent directory owner: %v", err)
-	}
-
-	logger.Println("changing SUID for the agent bin file ...")
-	if err := os.Chmod(getAgentBinPath(), 0644|os.ModeSetuid); err != nil {
-		return fmt.Errorf("could not set SUID for the agent bin file: %v", err)
 	}
 
 	return nil

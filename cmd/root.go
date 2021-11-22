@@ -97,6 +97,21 @@ func downloadAndUnpackAgent(archiveName, agentParentDir string) error {
 	return nil
 }
 
+func updatePermissions(userName, groupName string) error {
+	agentDir := getAgentDir()
+	logger.Println(fmt.Sprintf("setting owner '%s:%s' for the agent directory '%s' ...", userName, groupName, agentDir))
+	if err := sh.Exec(fmt.Sprintf("chown -R %s:%s %s", userName, groupName, agentDir)); err != nil {
+		return fmt.Errorf("could not set agent directory owner: %v", err)
+	}
+
+	logger.Println("changing SUID for the agent bin file ...")
+	if err := os.Chmod(getAgentBinPath(), 0644|os.ModeSetuid); err != nil {
+		return fmt.Errorf("could not set SUID for the agent bin file: %v", err)
+	}
+
+	return nil
+}
+
 func getAgentDir() string {
 	return filepath.Join(AGENT_PARENT_DIR, AGENT_DIR_NAME)
 }
