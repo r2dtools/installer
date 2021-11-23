@@ -31,7 +31,7 @@ jobs:
       id: deploy
       uses: Pendect/action-rsyncer@v1.1.0
       env:
-        DEPLOY_KEY: ${{secrets.r2stDeploy}}
+        DEPLOY_KEY: ${{secrets.INSTALLERDEPLOY}}
       with:
         flags: '-avz'
         options: ''
