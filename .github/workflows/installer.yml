@@ -10,7 +10,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v1
       with:
-        go-version: 1.16
+        go-version: 1.17
       id: go
 
     - name: Check out code
@@ -31,7 +31,7 @@ jobs:
       id: deploy
       uses: Pendect/action-rsyncer@v1.1.0
       env:
-        DEPLOY_KEY: ${{secrets.r2stDeploy}}
+        DEPLOY_KEY: ${{secrets.INSTALLERDEPLOY}}
       with:
         flags: '-avz'
         options: ''
