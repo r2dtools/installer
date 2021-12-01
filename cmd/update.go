@@ -22,7 +22,7 @@ var updateCmd = &cobra.Command{
 			return err
 		}
 
-		if err := downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME); err != nil {
+		if err := downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME, ""); err != nil {
 			return err
 		}
 

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -19,7 +20,7 @@ const (
 	AGENT_BIN_FILE_NAME = "r2dtools"
 	AGENT_DIR_NAME      = "r2dtools"
 	ARCHIVE_NAME        = "r2dtools-agent.tar.gz"
-	URL                 = "https://github.com/r2dtools/agent/releases/download/v0.2.1"
+	URL                 = "https://github.com/r2dtools/agent/releases/download"
 	AGENT_PARENT_DIR    = "/opt"
 )
 
@@ -41,7 +42,18 @@ func Execute() {
 	}
 }
 
-func downloadAndUnpackAgent(archiveName, agentParentDir string) error {
+func downloadAndUnpackAgent(archiveName, agentParentDir, version string) error {
+	var err error
+	if version == "" {
+		version, err = utils.GetAgentLatestVersion()
+		if err != nil {
+			return fmt.Errorf("could not get the latest version of the agent: %v", err)
+		}
+		if version == "" {
+			return errors.New("could not get the latest version of the agent")
+		}
+	}
+
 	tmp := os.TempDir()
 	filePath := filepath.Join(tmp, archiveName)
 	dirPath := filepath.Join(tmp, agentParentDir)
@@ -64,7 +76,7 @@ func downloadAndUnpackAgent(archiveName, agentParentDir string) error {
 		return fmt.Errorf("could not create agent archive file %s: %v", archiveName, err)
 	}
 	defer file.Close()
-	response, err := http.Get(URL + "/" + archiveName)
+	response, err := http.Get(URL + "/" + version + "/" + archiveName)
 	if err != nil {
 		return fmt.Errorf("could not download agent archive: %v", err)
 	}

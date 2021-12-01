@@ -9,6 +9,8 @@ import (
 	"github.com/unknwon/com"
 )
 
+var version string
+
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install R2DTools agent",
@@ -35,7 +37,7 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		if err = downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME); err != nil {
+		if err = downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME, version); err != nil {
 			return err
 		}
 
@@ -98,5 +100,6 @@ func addUserGroup(userName, groupName string) error {
 }
 
 func init() {
+	installCmd.Flags().StringVar(&version, "version", "", "Version to install. If the version is not specified the latest one will be installed.")
 	rootCmd.AddCommand(installCmd)
 }
