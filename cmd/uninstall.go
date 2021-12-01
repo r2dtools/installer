@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/unknwon/com"
 )
 
 var uninstallCmd = &cobra.Command{
@@ -16,6 +18,14 @@ var uninstallCmd = &cobra.Command{
 		if err := systemD.RemoveService(AGENT_BIN_FILE_NAME); err != nil {
 			return err
 		}
+
+		agentDir := getAgentDir()
+		if com.IsDir(agentDir) {
+			if err := os.RemoveAll(agentDir); err != nil {
+				return err
+			}
+		}
+
 		removeUserGroup(USER, GROUP)
 
 		return nil
