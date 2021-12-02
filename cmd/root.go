@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	ROOT_USER           = "root"
 	USER                = "r2dtools"
 	GROUP               = "r2dtools"
 	AGENT_BIN_FILE_NAME = "r2dtools"
@@ -52,6 +53,7 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string) error {
 		if version == "" {
 			return errors.New("could not get the latest version of the agent")
 		}
+		logger.Println(fmt.Sprintf("the latest version of agent: %s", version))
 	}
 
 	tmp := os.TempDir()
@@ -76,18 +78,18 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string) error {
 		return fmt.Errorf("could not create agent archive file %s: %v", archiveName, err)
 	}
 	defer file.Close()
-	response, err := http.Get(URL + "/" + version + "/" + archiveName)
+	response, err := http.Get(URL + "/v" + version + "/" + archiveName)
 	if err != nil {
-		return fmt.Errorf("could not download agent archive: %v", err)
+		return fmt.Errorf("could not download the agent archive: %v", err)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %s", response.Status)
+		return fmt.Errorf("could not download the agent archive: bad status: %s", response.Status)
 	}
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		return fmt.Errorf("could not download agent archive: %v", err)
+		return fmt.Errorf("could not download the agent archive: %v", err)
 	}
 
 	logger.Println("unpacking the agent archive ...")
@@ -117,7 +119,7 @@ func updatePermissions(userName, groupName string) error {
 	}
 
 	logger.Println("changing SUID for the agent bin file ...")
-	if err := os.Chmod(getAgentBinPath(), 0644|os.ModeSetuid); err != nil {
+	if err := os.Chmod(getAgentBinPath(), 0744|os.ModeSetuid); err != nil {
 		return fmt.Errorf("could not set SUID for the agent bin file: %v", err)
 	}
 

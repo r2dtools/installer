@@ -12,9 +12,7 @@ var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: "Uninstall R2DTools agent",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := systemD.StopService(AGENT_BIN_FILE_NAME); err != nil {
-			return err
-		}
+		systemD.StopService(AGENT_BIN_FILE_NAME)
 		if err := systemD.RemoveService(AGENT_BIN_FILE_NAME); err != nil {
 			return err
 		}
@@ -27,6 +25,7 @@ var uninstallCmd = &cobra.Command{
 		}
 
 		removeUserGroup(USER, GROUP)
+		logger.Println("the agent is successfully uninstalled")
 
 		return nil
 	},
@@ -34,7 +33,7 @@ var uninstallCmd = &cobra.Command{
 
 func removeUserGroup(userName, groupName string) {
 	sh.Exec(fmt.Sprintf("userdel %s", userName))
-	sh.Exec(fmt.Sprintf("groupdel %s", userName))
+	sh.Exec(fmt.Sprintf("groupdel %s", groupName))
 }
 
 func init() {

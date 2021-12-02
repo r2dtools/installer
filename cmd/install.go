@@ -45,7 +45,7 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		if err = systemD.CreateService(getAgentBinPath(), USER, GROUP); err != nil {
+		if err = systemD.CreateService(getAgentBinPath(), ROOT_USER, GROUP); err != nil {
 			return err
 		}
 

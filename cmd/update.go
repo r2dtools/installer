@@ -65,7 +65,7 @@ func putConfigContent(content string) error {
 }
 
 func getConfigFilePath() string {
-	return filepath.Join(getAgentDir(), "config", "params.yml")
+	return filepath.Join(getAgentDir(), "config", "params.yaml")
 }
 
 func init() {

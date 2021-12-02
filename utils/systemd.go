@@ -37,7 +37,7 @@ func (sd *SystemD) CreateService(binPath, userName, groupName string) error {
 	ExecStart=%s
 	
 	[Install]
-	WantedBy=multi-user.target`, userName, groupName, binPath)
+	WantedBy=multi-user.target`, userName, groupName, binPath+" serve")
 	if _, err := io.WriteString(serviceFile, content); err != nil {
 		return err
 	}
@@ -47,6 +47,8 @@ func (sd *SystemD) CreateService(binPath, userName, groupName string) error {
 
 func (sd *SystemD) StartService(serviceName string) error {
 	sd.Logger.Println("starting R2DTools agent service ...")
+	sd.Sh.Exec("systemctl daemon-reload")
+
 	if err := sd.Sh.Exec(fmt.Sprintf("systemctl start \"%s\"", serviceName)); err != nil {
 		return fmt.Errorf("could not start '%s' service: %v", serviceName, err)
 	}
@@ -68,7 +70,6 @@ func (sd *SystemD) StopService(serviceName string) error {
 	if err := sd.Sh.Exec(fmt.Sprintf("systemctl stop \"%s\"", serviceName)); err != nil {
 		return fmt.Errorf("could not stop '%s' service: %v", serviceName, err)
 	}
-	sd.Logger.Println("R2DTools agent service successfully stopped")
 
 	return nil
 }
@@ -78,9 +79,8 @@ func (sd *SystemD) RemoveService(serviceName string) error {
 	if err := sd.Sh.Exec(fmt.Sprintf("systemctl disable \"%s\"", serviceName)); err != nil {
 		return fmt.Errorf("could not disable '%s' service: %v", serviceName, err)
 	}
-	sd.Logger.Println("R2DTools agent service is successfully disabled")
 	os.Remove(SYSTEMD_SERVICE_FILE)
-	sd.Sh.Exec("systemctl daemo-reload")
+	sd.Sh.Exec("systemctl daemon-reload")
 
 	return nil
 }
