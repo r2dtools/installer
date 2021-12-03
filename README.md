@@ -11,7 +11,7 @@ Install the specific version of the agent
 ```bash
 ./installer install --version "version"
 ```
-Update the agent to the latest vereion
+Update the agent to the latest version
 ```bash
 ./installer update
 ```
