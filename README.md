@@ -1,18 +1,21 @@
 # Installer
 R2DTools Agent Installer
 
-## Install the latest version of the agent
+## Usage
+Install the latest version of the agent
 
+```bash
 ./installer install
-
-## Install the specific version of the agent
-
+```
+Install the specific version of the agent
+```bash
 ./installer install --version "version"
-
-## Update the agent to the latest vereion
-
+```
+Update the agent to the latest vereion
+```bash
 ./installer update
-
-## Uninstall the agent
-
+```
+Uninstall the agent
+```bash
 ./installer uninstall
+```
