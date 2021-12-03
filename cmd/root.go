@@ -19,6 +19,7 @@ const (
 	USER                = "r2dtools"
 	GROUP               = "r2dtools"
 	AGENT_BIN_FILE_NAME = "r2dtools"
+	LEGO_BIN_FILE_NAME  = "lego"
 	AGENT_DIR_NAME      = "r2dtools"
 	ARCHIVE_NAME        = "r2dtools-agent.tar.gz"
 	URL                 = "https://github.com/r2dtools/agent/releases/download"
@@ -142,6 +143,11 @@ func updatePermissions(userName, groupName string) error {
 		return fmt.Errorf("could not set SUID for the agent bin file: %v", err)
 	}
 
+	logger.Println("making lego bin file executable...")
+	if err := os.Chmod(getLegoBinPath(), 0744); err != nil {
+		return fmt.Errorf("could not make lego bin file executable: %v", err)
+	}
+
 	return nil
 }
 
@@ -151,6 +157,10 @@ func getAgentDir() string {
 
 func getAgentBinPath() string {
 	return filepath.Join(getAgentDir(), AGENT_BIN_FILE_NAME)
+}
+
+func getLegoBinPath() string {
+	return filepath.Join(getAgentDir(), LEGO_BIN_FILE_NAME)
 }
 
 func getDirsToExclude() []string {
