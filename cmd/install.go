@@ -37,7 +37,7 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		if err = downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME, version); err != nil {
+		if err = downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME, version, false); err != nil {
 			return err
 		}
 

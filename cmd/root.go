@@ -43,7 +43,7 @@ func Execute() {
 	}
 }
 
-func downloadAndUnpackAgent(archiveName, agentParentDir, version string) error {
+func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update bool) error {
 	var err error
 	if version == "" {
 		version, err = utils.GetAgentLatestVersion()
@@ -94,11 +94,30 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string) error {
 
 	logger.Println("unpacking the agent archive ...")
 	agentDir := getAgentDir()
+
 	if com.IsDir(agentDir) {
-		if err := os.RemoveAll(agentDir); err != nil {
-			return fmt.Errorf("could not remove the existed directory '%s': %v", agentDir, err)
+		if !update {
+			if err := os.RemoveAll(agentDir); err != nil {
+				return fmt.Errorf("could not remove the existed directory '%s': %v", agentDir, err)
+			}
+		} else {
+			entries, err := os.ReadDir(agentDir)
+			if err != nil {
+				return fmt.Errorf("could not read the agent directory '%s': %v", agentDir, err)
+			}
+			for _, entry := range entries {
+				entryName := entry.Name()
+				if !com.IsSliceContainsStr(getDirsToExclude(), entryName) {
+					entryPath := filepath.Join(agentDir, entryName)
+					if err = os.RemoveAll(entryPath); err != nil {
+						return err
+					}
+				}
+			}
 		}
-	} else {
+	}
+
+	if !com.IsDir(agentDir) {
 		if err = os.Mkdir(agentDir, 0755); err != nil {
 			return fmt.Errorf("could not create agent directory: %v", err)
 		}
@@ -132,6 +151,10 @@ func getAgentDir() string {
 
 func getAgentBinPath() string {
 	return filepath.Join(getAgentDir(), AGENT_BIN_FILE_NAME)
+}
+
+func getDirsToExclude() []string {
+	return []string{"var", "config"}
 }
 
 func init() {

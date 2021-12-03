@@ -42,6 +42,9 @@ func ExtractTarGz(file, folder string) error {
 				return fmt.Errorf("could not create directory '%s': %v", destPath, err)
 			}
 		case tar.TypeReg:
+			if com.IsFile(destPath) {
+				continue
+			}
 			outFile, err := os.Create(destPath)
 			if err != nil {
 				return fmt.Errorf("could not create file '%s': %v", destPath, err)
@@ -50,7 +53,6 @@ func ExtractTarGz(file, folder string) error {
 				return fmt.Errorf("could not copy entry '%s': %v", destPath, err)
 			}
 			outFile.Close()
-
 		default:
 			return fmt.Errorf("uknown type: %s in %s", string(header.Typeflag), destPath)
 		}
