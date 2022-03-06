@@ -59,7 +59,7 @@ var installCmd = &cobra.Command{
 
 func installPackages(info *host.InfoStat) error {
 	logger.Println("installing augeas package ...")
-	packageCmd := "sudo apt-get install libaugeas0"
+	packageCmd := "apt-get install libaugeas0"
 	if info.PlatformFamily == "rhel" {
 		packageCmd = "yum -y install augeas"
 	}
