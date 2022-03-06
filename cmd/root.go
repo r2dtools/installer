@@ -37,6 +37,7 @@ var rootCmd = &cobra.Command{
 var logger *log.Logger
 var systemD *utils.SystemD
 var sh *utils.SH
+var version string
 
 // Execute entry point for cli commands
 func Execute() {

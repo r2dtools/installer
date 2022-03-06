@@ -9,8 +9,6 @@ import (
 	"github.com/unknwon/com"
 )
 
-var version string
-
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install R2DTools agent",

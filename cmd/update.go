@@ -12,7 +12,7 @@ var updateCmd = &cobra.Command{
 			return err
 		}
 
-		if err := downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME, "", true); err != nil {
+		if err := downloadAndUnpackAgent(ARCHIVE_NAME, AGENT_DIR_NAME, version, true); err != nil {
 			return err
 		}
 
@@ -29,5 +29,6 @@ var updateCmd = &cobra.Command{
 }
 
 func init() {
+	updateCmd.Flags().StringVar(&version, "version", "", "Version to upgrade to. If the version is not specified the agent will be upgraded to the latest one.")
 	rootCmd.AddCommand(updateCmd)
 }
