@@ -148,7 +148,7 @@ func updatePermissions(userName, groupName string) error {
 		return fmt.Errorf("could not set agent directory owner: %v", err)
 	}
 
-	logger.Println("changing SUID for the agent bin file ...")
+	logger.Println("making agent bin file executable...")
 	if err := os.Chmod(getAgentBinPath(), 0744); err != nil {
 		return fmt.Errorf("could not set SUID for the agent bin file: %v", err)
 	}
