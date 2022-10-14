@@ -149,7 +149,7 @@ func updatePermissions(userName, groupName string) error {
 	}
 
 	logger.Println("changing SUID for the agent bin file ...")
-	if err := os.Chmod(getAgentBinPath(), 0744|os.ModeSetuid); err != nil {
+	if err := os.Chmod(getAgentBinPath(), 0744); err != nil {
 		return fmt.Errorf("could not set SUID for the agent bin file: %v", err)
 	}
 
