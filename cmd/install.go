@@ -14,21 +14,16 @@ var installCmd = &cobra.Command{
 	Short: "Install R2DTools agent",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		info, err := host.Info()
+
 		if err != nil {
 			return err
-		}
-		if info.KernelArch != "x86_64" {
-			return fmt.Errorf("architecture %s is not supported", info.KernelArch)
 		}
 
 		logger.Println("checking platform ...")
 		supportedPlatforms := []string{"ubuntu", "centos", "debian"}
+
 		if !com.IsSliceContainsStr(supportedPlatforms, info.Platform) {
 			return fmt.Errorf("platform %s is not supported", info.Platform)
-		}
-
-		if err = installPackages(info); err != nil {
-			return err
 		}
 
 		if err = addUserGroup(USER, GROUP); err != nil {
@@ -47,41 +42,25 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		if err = systemD.StartService(AGENT_BIN_FILE_NAME); err != nil {
-			return err
-		}
-
-		return nil
+		return systemD.StartService(AGENT_BIN_FILE_NAME)
 	},
 }
 
-func installPackages(info *host.InfoStat) error {
-	logger.Println("installing augeas package ...")
-	packageCmd := "apt-get -y install libaugeas0"
-	if info.PlatformFamily == "rhel" {
-		packageCmd = "yum -y install augeas"
-	}
-
-	if err := sh.Exec(packageCmd); err != nil {
-		return fmt.Errorf("could not install augeas package: %v", err)
-	}
-
-	return nil
-}
-
 func addUserGroup(userName, groupName string) error {
-	logger.Println(fmt.Sprintf("adding group %s ...", groupName))
+	logger.Printf("adding group %s ...\n", groupName)
 	err := sh.Exec(fmt.Sprintf("grep -q %s /etc/group", groupName))
+
 	if err != nil {
 		if err := sh.Exec("groupadd " + groupName); err != nil {
 			return fmt.Errorf("could not create group '%s': %v", groupName, err)
 		}
 	} else {
-		logger.Println(fmt.Sprintf("the group '%s' already exists", groupName))
+		logger.Printf("the group '%s' already exists\n", groupName)
 	}
 
-	logger.Println(fmt.Sprintf("adding user %s ...", userName))
+	logger.Printf("adding user %s ...\n", userName)
 	_, err = user.Lookup(userName)
+
 	if err != nil {
 		if _, ok := err.(user.UnknownUserError); !ok {
 			return err
@@ -91,7 +70,7 @@ func addUserGroup(userName, groupName string) error {
 			}
 		}
 	} else {
-		logger.Println(fmt.Sprintf("the user '%s' already exists", userName))
+		logger.Printf("the user '%s' already exists\n", userName)
 	}
 
 	return nil

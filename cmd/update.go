@@ -20,11 +20,7 @@ var updateCmd = &cobra.Command{
 			return err
 		}
 
-		if err := systemD.StartService(AGENT_BIN_FILE_NAME); err != nil {
-			return err
-		}
-
-		return nil
+		return systemD.StartService(AGENT_BIN_FILE_NAME)
 	},
 }
 

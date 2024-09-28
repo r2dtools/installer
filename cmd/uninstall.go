@@ -13,11 +13,13 @@ var uninstallCmd = &cobra.Command{
 	Short: "Uninstall R2DTools agent",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		systemD.StopService(AGENT_BIN_FILE_NAME)
+
 		if err := systemD.RemoveService(AGENT_BIN_FILE_NAME); err != nil {
 			return err
 		}
 
 		agentDir := getAgentDir()
+
 		if com.IsDir(agentDir) {
 			if err := os.RemoveAll(agentDir); err != nil {
 				return err

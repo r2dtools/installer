@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -23,7 +22,6 @@ const (
 	AGENT_DIR_NAME      = "r2dtools"
 	ARCHIVE_NAME        = "r2dtools-agent.tar.gz"
 	URL_PROD            = "https://github.com/r2dtools/agent/releases/download"
-	URL_DEV             = "https://r2dtools.com/builds"
 	AGENT_PARENT_DIR    = "/opt"
 )
 
@@ -39,7 +37,6 @@ var systemD *utils.SystemD
 var sh *utils.SH
 var version string
 
-// Execute entry point for cli commands
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
@@ -49,14 +46,7 @@ func Execute() {
 func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update bool) error {
 	var err error
 	if version == "" {
-		version, err = utils.GetAgentLatestVersion()
-		if err != nil {
-			return fmt.Errorf("could not get the latest version of the agent: %v", err)
-		}
-		if version == "" {
-			return errors.New("could not get the latest version of the agent")
-		}
-		logger.Println(fmt.Sprintf("the latest version of agent: %s", version))
+		version = "latest"
 	}
 
 	tmp := os.TempDir()
@@ -77,20 +67,26 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update 
 
 	logger.Println("downloading the agent archive ...")
 	file, err := os.Create(filePath)
+
 	if err != nil {
 		return fmt.Errorf("could not create agent archive file %s: %v", archiveName, err)
 	}
+
 	defer file.Close()
 	response, err := http.Get(getAgentDownloadUrl(version, archiveName))
+
 	if err != nil {
 		return fmt.Errorf("could not download the agent archive: %v", err)
 	}
+
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("could not download the agent archive: bad status: %s", response.Status)
 	}
+
 	_, err = io.Copy(file, response.Body)
+
 	if err != nil {
 		return fmt.Errorf("could not download the agent archive: %v", err)
 	}
@@ -105,13 +101,17 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update 
 			}
 		} else {
 			entries, err := os.ReadDir(agentDir)
+
 			if err != nil {
 				return fmt.Errorf("could not read the agent directory '%s': %v", agentDir, err)
 			}
+
 			for _, entry := range entries {
 				entryName := entry.Name()
+
 				if !com.IsSliceContainsStr(getDirsToExclude(), entryName) {
 					entryPath := filepath.Join(agentDir, entryName)
+
 					if err = os.RemoveAll(entryPath); err != nil {
 						return err
 					}
@@ -134,26 +134,25 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update 
 }
 
 func getAgentDownloadUrl(version, archiveName string) string {
-	if version == "dev" {
-		return URL_DEV + "/" + archiveName
-	}
-
 	return URL_PROD + "/v" + version + "/" + archiveName
 }
 
 func updatePermissions(userName, groupName string) error {
 	agentDir := getAgentDir()
-	logger.Println(fmt.Sprintf("setting owner '%s:%s' for the agent directory '%s' ...", userName, groupName, agentDir))
+	logger.Printf("setting owner '%s:%s' for the agent directory '%s' ...\n", userName, groupName, agentDir)
+
 	if err := sh.Exec(fmt.Sprintf("chown -R %s:%s %s", userName, groupName, agentDir)); err != nil {
 		return fmt.Errorf("could not set agent directory owner: %v", err)
 	}
 
 	logger.Println("making agent bin file executable...")
+
 	if err := os.Chmod(getAgentBinPath(), 0744); err != nil {
 		return fmt.Errorf("could not set SUID for the agent bin file: %v", err)
 	}
 
 	logger.Println("making lego bin file executable...")
+
 	if err := os.Chmod(getLegoBinPath(), 0744); err != nil {
 		return fmt.Errorf("could not make lego bin file executable: %v", err)
 	}
