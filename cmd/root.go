@@ -21,7 +21,7 @@ const (
 	LEGO_BIN_FILE_NAME  = "lego"
 	AGENT_DIR_NAME      = "r2dtools"
 	ARCHIVE_NAME        = "r2dtools-agent.tar.gz"
-	URL_PROD            = "https://github.com/r2dtools/agent/releases/download"
+	URL_PROD            = "https://github.com/r2dtools/agent/releases"
 	AGENT_PARENT_DIR    = "/opt"
 )
 
@@ -45,10 +45,6 @@ func Execute() {
 
 func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update bool) error {
 	var err error
-	if version == "" {
-		version = "latest"
-	}
-
 	tmp := os.TempDir()
 	filePath := filepath.Join(tmp, archiveName)
 	dirPath := filepath.Join(tmp, agentParentDir)
@@ -73,7 +69,8 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update 
 	}
 
 	defer file.Close()
-	response, err := http.Get(getAgentDownloadUrl(version, archiveName))
+	downloadUrl := getAgentDownloadUrl(version, archiveName)
+	response, err := http.Get(downloadUrl)
 
 	if err != nil {
 		return fmt.Errorf("could not download the agent archive: %v", err)
@@ -134,7 +131,11 @@ func downloadAndUnpackAgent(archiveName, agentParentDir, version string, update 
 }
 
 func getAgentDownloadUrl(version, archiveName string) string {
-	return URL_PROD + "/v" + version + "/" + archiveName
+	if version == "" {
+		return fmt.Sprintf("%s/latest/download/%s", URL_PROD, archiveName)
+	}
+
+	return fmt.Sprintf("%s/download/v%s/%s", URL_PROD, version, archiveName)
 }
 
 func updatePermissions(userName, groupName string) error {
